@@ -1,0 +1,493 @@
+<!DOCTYPE html>
+<html lang="zh-CN" class="h-full">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, user-scalable=no">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <title>农财通 - 聊天</title>
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        :root {
+            --safe-area-inset-top: env(safe-area-inset-top);
+            --safe-area-inset-bottom: env(safe-area-inset-bottom);
+        }
+        
+        body {
+            background-color: #f8fafc;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            -webkit-tap-highlight-color: transparent;
+            height: 100%;
+            overflow: hidden;
+        }
+
+        .header {
+            background: white;
+            padding: max(var(--safe-area-inset-top), 20px) 16px 12px;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 40;
+            box-shadow: 0 1px 2px rgba(0,0,0,0.05);
+        }
+
+        .header-content {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            height: 44px;
+        }
+
+        .back-btn {
+            width: 32px;
+            height: 32px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #1F2937;
+            border-radius: 16px;
+            transition: all 0.2s;
+        }
+
+        .back-btn:active {
+            background-color: #F3F4F6;
+            transform: scale(0.9);
+        }
+
+        .chat-container {
+            height: 100vh;
+            padding: calc(76px + max(var(--safe-area-inset-top), 20px)) 0 calc(76px + var(--safe-area-inset-bottom)) 0;
+            overflow-y: auto;
+            -webkit-overflow-scrolling: touch;
+        }
+
+        .message-list {
+            padding: 16px;
+        }
+
+        .message {
+            display: flex;
+            align-items: flex-start;
+            gap: 12px;
+            margin-bottom: 20px;
+            animation: fadeIn 0.3s ease-out;
+            max-width: 85%;
+        }
+
+        .message.sent {
+            flex-direction: row-reverse;
+            margin-left: auto;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 20px;
+            background: #E5E7EB;
+            overflow: hidden;
+            flex-shrink: 0;
+        }
+
+        .avatar img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .message-content {
+            position: relative;
+        }
+
+        .message-bubble {
+            padding: 12px 16px;
+            border-radius: 18px;
+            font-size: 15px;
+            line-height: 1.4;
+            word-break: break-word;
+        }
+
+        .message.received .message-bubble {
+            background: white;
+            color: #1F2937;
+            border-top-left-radius: 4px;
+            box-shadow: 0 1px 2px rgba(0,0,0,0.05);
+        }
+
+        .message.sent .message-bubble {
+            background: #059669;
+            color: white;
+            border-top-right-radius: 4px;
+        }
+
+        .message-time {
+            font-size: 12px;
+            color: #9CA3AF;
+            margin-top: 4px;
+            user-select: none;
+        }
+
+        .message.sent .message-time {
+            text-align: right;
+        }
+
+        .quick-replies {
+            position: fixed;
+            left: 0;
+            right: 0;
+            bottom: calc(76px + var(--safe-area-inset-bottom));
+            background: white;
+            border-top: 1px solid rgba(0,0,0,0.05);
+            padding: 12px 16px;
+            display: flex;
+            gap: 8px;
+            overflow-x: auto;
+            -webkit-overflow-scrolling: touch;
+        }
+
+        .quick-replies::-webkit-scrollbar {
+            display: none;
+        }
+
+        .quick-reply-btn {
+            padding: 8px 16px;
+            background: #F3F4F6;
+            border-radius: 16px;
+            font-size: 14px;
+            color: #1F2937;
+            white-space: nowrap;
+            transition: all 0.2s;
+        }
+
+        .quick-reply-btn:active {
+            transform: scale(0.95);
+            background: #E5E7EB;
+        }
+
+        .input-bar {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: white;
+            padding: 16px 16px calc(16px + var(--safe-area-inset-bottom));
+            border-top: 1px solid rgba(0,0,0,0.05);
+            display: flex;
+            align-items: flex-end;
+            gap: 12px;
+            z-index: 40;
+        }
+
+        .input-wrapper {
+            flex: 1;
+            background: #F3F4F6;
+            border-radius: 20px;
+            padding: 8px 16px;
+            min-height: 40px;
+            max-height: 120px;
+            display: flex;
+            align-items: flex-end;
+        }
+
+        .input-box {
+            flex: 1;
+            border: none;
+            outline: none;
+            background: transparent;
+            font-size: 15px;
+            line-height: 24px;
+            max-height: 96px;
+            resize: none;
+            padding: 0;
+            margin: 0;
+        }
+
+        .input-box::placeholder {
+            color: #9CA3AF;
+        }
+
+        .tool-btn {
+            width: 40px;
+            height: 40px;
+            border-radius: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #059669;
+            font-size: 20px;
+            transition: all 0.2s;
+            flex-shrink: 0;
+        }
+
+        .tool-btn:active {
+            transform: scale(0.9);
+            background: #F3F4F6;
+        }
+
+        .send-btn {
+            background: #059669;
+            color: white;
+        }
+
+        .send-btn:active {
+            transform: scale(0.9);
+            background: #047857;
+        }
+
+        .image-preview {
+            max-width: 200px;
+            border-radius: 12px;
+            margin: 4px 0;
+        }
+
+        .loading-dots {
+            display: inline-flex;
+            gap: 2px;
+            margin: 0 4px;
+        }
+
+        .loading-dots span {
+            width: 4px;
+            height: 4px;
+            background: currentColor;
+            border-radius: 2px;
+            animation: loading 1s infinite;
+        }
+
+        .loading-dots span:nth-child(2) { animation-delay: 0.2s; }
+        .loading-dots span:nth-child(3) { animation-delay: 0.4s; }
+
+        @keyframes loading {
+            0%, 100% { opacity: 0.3; }
+            50% { opacity: 1; }
+        }
+
+        .typing-indicator {
+            padding: 12px 16px;
+            background: rgba(255,255,255,0.8);
+            border-radius: 16px;
+            font-size: 14px;
+            color: #6B7280;
+            backdrop-filter: blur(8px);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 20px;
+            animation: fadeIn 0.3s ease-out;
+        }
+    </style>
+</head>
+<body class="h-full">
+    <div class="header">
+        <div class="header-content">
+            <button class="back-btn" onclick="history.back()">
+                <i class="fas fa-arrow-left"></i>
+            </button>
+            <div class="flex-1">
+                <h1 class="text-lg font-semibold text-gray-900">四川成都水果批发商</h1>
+                <p class="text-sm text-gray-500">在线</p>
+            </div>
+            <button class="back-btn">
+                <i class="fas fa-ellipsis-v"></i>
+            </button>
+        </div>
+    </div>
+
+    <div class="chat-container">
+        <div class="message-list">
+            <!-- 系统消息 -->
+            <div class="typing-indicator">
+                <i class="fas fa-shield-alt"></i>
+                <span>系统提醒：请注意交易安全，保护好个人信息</span>
+            </div>
+
+            <!-- 接收的消息 -->
+            <div class="message received">
+                <div class="avatar">
+                    <img src="https://api.dicebear.com/7.x/micah/svg?seed=seller" alt="avatar">
+                </div>
+                <div class="message-content">
+                    <div class="message-bubble">
+                        您好，请问需要什么帮助？
+                    </div>
+                    <div class="message-time">10:30</div>
+                </div>
+            </div>
+
+            <!-- 发送的消息 -->
+            <div class="message sent">
+                <div class="avatar">
+                    <img src="https://api.dicebear.com/7.x/micah/svg?seed=buyer" alt="avatar">
+                </div>
+                <div class="message-content">
+                    <div class="message-bubble">
+                        你好，我想了解一下水果的价格
+                    </div>
+                    <div class="message-time">10:31</div>
+                </div>
+            </div>
+
+            <!-- 接收的消息 -->
+            <div class="message received">
+                <div class="avatar">
+                    <img src="https://api.dicebear.com/7.x/micah/svg?seed=seller" alt="avatar">
+                </div>
+                <div class="message-content">
+                    <div class="message-bubble">
+                        好的，我们目前有以下水果：
+                        1. 红富士苹果 8.8元/斤
+                        2. 砀山梨 5.5元/斤
+                        3. 蒲江猕猴桃 12元/斤
+                        4. 眉山脐橙 6.8元/斤
+                        以上价格都是批发价，量大优惠
+                    </div>
+                    <div class="message-time">10:32</div>
+                </div>
+            </div>
+
+            <!-- 正在输入提示 -->
+            <div class="typing-indicator">
+                <div class="loading-dots">
+                    <span></span><span></span><span></span>
+                </div>
+                <span>对方正在输入...</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- 快捷回复 -->
+    <div class="quick-replies">
+        <button class="quick-reply-btn" onclick="sendQuickReply(this)">价格能优惠吗？</button>
+        <button class="quick-reply-btn" onclick="sendQuickReply(this)">有什么新鲜水果？</button>
+        <button class="quick-reply-btn" onclick="sendQuickReply(this)">最低批发多少斤？</button>
+        <button class="quick-reply-btn" onclick="sendQuickReply(this)">可以看实物照片吗？</button>
+        <button class="quick-reply-btn" onclick="sendQuickReply(this)">支持送货上门吗？</button>
+    </div>
+
+    <!-- 输入栏 -->
+    <div class="input-bar">
+        <button class="tool-btn">
+            <i class="fas fa-plus"></i>
+        </button>
+        <div class="input-wrapper">
+            <textarea class="input-box" placeholder="输入消息..." rows="1" oninput="autoResize(this)"></textarea>
+        </div>
+        <button class="tool-btn">
+            <i class="fas fa-image"></i>
+        </button>
+        <button class="tool-btn send-btn">
+            <i class="fas fa-paper-plane"></i>
+        </button>
+    </div>
+
+    <script>
+        // 自动调整输入框高度
+        function autoResize(textarea) {
+            textarea.style.height = 'auto';
+            textarea.style.height = textarea.scrollHeight + 'px';
+        }
+
+        // 发送快捷回复
+        function sendQuickReply(btn) {
+            const text = btn.textContent;
+            const messageList = document.querySelector('.message-list');
+            const time = new Date().toLocaleTimeString('zh-CN', { hour: '2-digit', minute: '2-digit' });
+            
+            const message = document.createElement('div');
+            message.className = 'message sent';
+            message.innerHTML = `
+                <div class="avatar">
+                    <img src="https://api.dicebear.com/7.x/micah/svg?seed=buyer" alt="avatar">
+                </div>
+                <div class="message-content">
+                    <div class="message-bubble">${text}</div>
+                    <div class="message-time">${time}</div>
+                </div>
+            `;
+            
+            messageList.appendChild(message);
+            message.scrollIntoView({ behavior: 'smooth' });
+
+            // 模拟对方正在输入
+            setTimeout(() => {
+                const typing = document.createElement('div');
+                typing.className = 'typing-indicator';
+                typing.innerHTML = `
+                    <div class="loading-dots">
+                        <span></span><span></span><span></span>
+                    </div>
+                    <span>对方正在输入...</span>
+                `;
+                messageList.appendChild(typing);
+                typing.scrollIntoView({ behavior: 'smooth' });
+
+                // 模拟回复
+                setTimeout(() => {
+                    typing.remove();
+                    const reply = document.createElement('div');
+                    reply.className = 'message received';
+                    reply.innerHTML = `
+                        <div class="avatar">
+                            <img src="https://api.dicebear.com/7.x/micah/svg?seed=seller" alt="avatar">
+                        </div>
+                        <div class="message-content">
+                            <div class="message-bubble">好的，稍等我查询一下相关信息</div>
+                            <div class="message-time">${new Date().toLocaleTimeString('zh-CN', { hour: '2-digit', minute: '2-digit' })}</div>
+                        </div>
+                    `;
+                    messageList.appendChild(reply);
+                    reply.scrollIntoView({ behavior: 'smooth' });
+                }, 2000);
+            }, 500);
+        }
+
+        // 发送消息
+        document.querySelector('.send-btn').addEventListener('click', () => {
+            const input = document.querySelector('.input-box');
+            const text = input.value.trim();
+            
+            if (text) {
+                const messageList = document.querySelector('.message-list');
+                const time = new Date().toLocaleTimeString('zh-CN', { hour: '2-digit', minute: '2-digit' });
+                
+                const message = document.createElement('div');
+                message.className = 'message sent';
+                message.innerHTML = `
+                    <div class="avatar">
+                        <img src="https://api.dicebear.com/7.x/micah/svg?seed=buyer" alt="avatar">
+                    </div>
+                    <div class="message-content">
+                        <div class="message-bubble">${text}</div>
+                        <div class="message-time">${time}</div>
+                    </div>
+                `;
+                
+                messageList.appendChild(message);
+                message.scrollIntoView({ behavior: 'smooth' });
+                input.value = '';
+                input.style.height = 'auto';
+            }
+        });
+
+        // 监听回车键发送消息
+        document.querySelector('.input-box').addEventListener('keypress', (e) => {
+            if (e.key === 'Enter' && !e.shiftKey) {
+                e.preventDefault();
+                document.querySelector('.send-btn').click();
+            }
+        });
+    </script>
+</body>
+</html> 

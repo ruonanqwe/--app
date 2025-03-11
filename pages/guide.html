@@ -1,0 +1,286 @@
+<!DOCTYPE html>
+<html lang="zh-CN" class="h-full">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, user-scalable=no">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <title>农财通 - 引导页</title>
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        :root {
+            --safe-area-inset-top: env(safe-area-inset-top);
+            --safe-area-inset-bottom: env(safe-area-inset-bottom);
+        }
+
+        body {
+            background: linear-gradient(135deg, #10B981, #059669);
+            overflow: hidden;
+        }
+
+        .guide-container {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            display: flex;
+            flex-direction: column;
+            padding: max(var(--safe-area-inset-top), 20px) 20px max(var(--safe-area-inset-bottom), 20px);
+        }
+
+        .slides-container {
+            flex: 1;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .slide {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            opacity: 0;
+            transform: translateX(100%);
+            transition: all 0.5s ease;
+        }
+
+        .slide.active {
+            opacity: 1;
+            transform: translateX(0);
+        }
+
+        .slide.prev {
+            opacity: 0;
+            transform: translateX(-100%);
+        }
+
+        .slide-image {
+            width: 240px;
+            height: 240px;
+            margin-bottom: 40px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 40px;
+            padding: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 80px;
+            color: white;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+            animation: float 3s ease-in-out infinite;
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-10px); }
+        }
+
+        .slide-title {
+            font-size: 24px;
+            font-weight: 600;
+            color: white;
+            margin-bottom: 12px;
+            text-align: center;
+        }
+
+        .slide-desc {
+            font-size: 16px;
+            color: rgba(255, 255, 255, 0.9);
+            text-align: center;
+            line-height: 1.6;
+            padding: 0 32px;
+        }
+
+        .dots-container {
+            display: flex;
+            justify-content: center;
+            gap: 8px;
+            margin-bottom: 32px;
+        }
+
+        .dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 4px;
+            background: rgba(255, 255, 255, 0.3);
+            transition: all 0.3s;
+        }
+
+        .dot.active {
+            width: 24px;
+            background: white;
+        }
+
+        .start-btn {
+            width: 100%;
+            height: 56px;
+            background: white;
+            border-radius: 28px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 18px;
+            font-weight: 600;
+            color: #059669;
+            transition: all 0.2s;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+        }
+
+        .start-btn:active {
+            transform: scale(0.98);
+            box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
+        }
+
+        .skip-btn {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            padding: 8px 20px;
+            border-radius: 20px;
+            background: rgba(255, 255, 255, 0.2);
+            color: white;
+            font-size: 14px;
+            backdrop-filter: blur(8px);
+            transition: all 0.2s;
+        }
+
+        .skip-btn:active {
+            transform: scale(0.95);
+            background: rgba(255, 255, 255, 0.3);
+        }
+    </style>
+</head>
+<body class="h-full">
+    <div class="guide-container">
+        <button class="skip-btn" onclick="goToHome()">跳过</button>
+        
+        <div class="slides-container">
+            <div class="slide active">
+                <div class="slide-image">
+                    <i class="fas fa-store"></i>
+                </div>
+                <div class="slide-title">农产品交易平台</div>
+                <div class="slide-desc">连接产地与市场，打造优质农产品交易生态圈</div>
+            </div>
+            <div class="slide">
+                <div class="slide-image">
+                    <i class="fas fa-seedling"></i>
+                </div>
+                <div class="slide-title">农资服务专区</div>
+                <div class="slide-desc">一站式农资采购，助力农业增产增收</div>
+            </div>
+            <div class="slide">
+                <div class="slide-image">
+                    <i class="fas fa-tractor"></i>
+                </div>
+                <div class="slide-title">农机租赁服务</div>
+                <div class="slide-desc">智能农机设备租赁，提高农业生产效率</div>
+            </div>
+            <div class="slide">
+                <div class="slide-image">
+                    <i class="fas fa-warehouse"></i>
+                </div>
+                <div class="slide-title">仓储物流服务</div>
+                <div class="slide-desc">专业仓储配送，保障农产品新鲜到家</div>
+            </div>
+        </div>
+
+        <div class="dots-container">
+            <div class="dot active"></div>
+            <div class="dot"></div>
+            <div class="dot"></div>
+            <div class="dot"></div>
+        </div>
+
+        <button class="start-btn" onclick="goToHome()">
+            开始使用
+        </button>
+    </div>
+
+    <script>
+        let currentSlide = 0;
+        const slides = document.querySelectorAll('.slide');
+        const dots = document.querySelectorAll('.dot');
+        const totalSlides = slides.length;
+        let autoplayTimer;
+
+        function updateSlides() {
+            slides.forEach((slide, index) => {
+                slide.className = 'slide';
+                if (index === currentSlide) {
+                    slide.classList.add('active');
+                } else if (index === (currentSlide - 1 + totalSlides) % totalSlides) {
+                    slide.classList.add('prev');
+                }
+            });
+
+            dots.forEach((dot, index) => {
+                dot.classList.toggle('active', index === currentSlide);
+            });
+        }
+
+        function nextSlide() {
+            currentSlide = (currentSlide + 1) % totalSlides;
+            updateSlides();
+        }
+
+        function startAutoplay() {
+            stopAutoplay();
+            autoplayTimer = setInterval(nextSlide, 3000);
+        }
+
+        function stopAutoplay() {
+            if (autoplayTimer) {
+                clearInterval(autoplayTimer);
+            }
+        }
+
+        // 触摸事件处理
+        let startX = 0;
+        let isDragging = false;
+
+        document.addEventListener('touchstart', (e) => {
+            startX = e.touches[0].clientX;
+            isDragging = true;
+            stopAutoplay();
+        });
+
+        document.addEventListener('touchmove', (e) => {
+            if (!isDragging) return;
+            
+            const currentX = e.touches[0].clientX;
+            const diff = startX - currentX;
+
+            if (Math.abs(diff) > 50) {
+                isDragging = false;
+                if (diff > 0) {
+                    nextSlide();
+                } else {
+                    currentSlide = (currentSlide - 1 + totalSlides) % totalSlides;
+                    updateSlides();
+                }
+                startAutoplay();
+            }
+        });
+
+        document.addEventListener('touchend', () => {
+            isDragging = false;
+            startAutoplay();
+        });
+
+        function goToHome() {
+            location.href = 'home.html';
+        }
+
+        // 启动自动播放
+        startAutoplay();
+    </script>
+</body>
+</html> 

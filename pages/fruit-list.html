@@ -1,0 +1,532 @@
+<!DOCTYPE html>
+<html lang="zh-CN" class="h-full">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, user-scalable=no">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <title>农财通 - 水果专区</title>
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        /* 复用list.html的基础样式 */
+        :root {
+            --safe-area-inset-top: env(safe-area-inset-top);
+            --safe-area-inset-bottom: env(safe-area-inset-bottom);
+        }
+        /* ... 其他基础样式 ... */
+        
+        /* 水果专用样式 */
+        .category-tabs {
+            display: flex;
+            padding: 12px 16px;
+            gap: 12px;
+            overflow-x: auto;
+            background: white;
+            -webkit-overflow-scrolling: touch;
+        }
+        .category-tabs::-webkit-scrollbar {
+            display: none;
+        }
+        .category-tab {
+            padding: 6px 16px;
+            border-radius: 16px;
+            font-size: 14px;
+            color: #6B7280;
+            background: #F3F4F6;
+            white-space: nowrap;
+        }
+        .category-tab.active {
+            color: white;
+            background: #059669;
+        }
+        .fruit-tag {
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            padding: 2px 8px;
+            border-radius: 4px;
+            font-size: 12px;
+            color: #059669;
+            background: #F0FDF4;
+            margin-right: 8px;
+        }
+        .fruit-origin {
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            color: #6B7280;
+            font-size: 12px;
+        }
+
+        /* 基础交互样式 */
+        .filter-item {
+            position: relative;
+            transition: color 0.2s;
+        }
+
+        .filter-item.active {
+            color: #059669;
+            font-weight: 500;
+        }
+
+        .filter-item.active::after {
+            content: '';
+            position: absolute;
+            bottom: -4px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 16px;
+            height: 2px;
+            background: #059669;
+            border-radius: 1px;
+        }
+
+        .product-card {
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+
+        .product-card:active {
+            transform: scale(0.98);
+            box-shadow: 0 1px 2px rgba(0,0,0,0.1);
+        }
+
+        .category-tab {
+            transition: all 0.2s;
+        }
+
+        .category-tab:active {
+            opacity: 0.8;
+            transform: scale(0.95);
+        }
+
+        .contact-btn {
+            transition: all 0.2s;
+        }
+
+        .contact-btn:active {
+            transform: scale(0.95);
+            opacity: 0.9;
+        }
+
+        /* 筛选抽屉样式 */
+        .drawer-mask {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0,0,0,0.5);
+            z-index: 40;
+            opacity: 0;
+            visibility: hidden;
+            transition: all 0.3s;
+        }
+
+        .drawer-mask.active {
+            opacity: 1;
+            visibility: visible;
+        }
+
+        .filter-drawer {
+            position: fixed;
+            top: 0;
+            right: 0;
+            bottom: 0;
+            width: 80%;
+            max-width: 360px;
+            background: white;
+            z-index: 50;
+            padding: 20px;
+            transform: translateX(100%);
+            transition: transform 0.3s;
+            overflow-y: auto;
+            -webkit-overflow-scrolling: touch;
+        }
+
+        .filter-drawer.active {
+            transform: translateX(0);
+        }
+
+        .filter-drawer button {
+            transition: all 0.2s;
+        }
+
+        .filter-drawer button:active {
+            transform: scale(0.95);
+        }
+
+        /* 基础样式 */
+        .header {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 20;
+            background: white;
+            padding-top: max(var(--safe-area-inset-top), 20px);
+        }
+
+        .search-bar {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 12px 16px;
+            background: white;
+        }
+
+        .back-btn {
+            width: 32px;
+            height: 32px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #374151;
+            border-radius: 50%;
+            transition: all 0.2s;
+        }
+
+        .back-btn:active {
+            background: #F3F4F6;
+            transform: scale(0.9);
+        }
+
+        .search-input {
+            flex: 1;
+            height: 40px;
+            background: #F3F4F6;
+            border-radius: 20px;
+            padding: 0 16px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            transition: all 0.2s;
+            cursor: pointer;
+        }
+
+        .search-input:active {
+            background: #E5E7EB;
+            transform: scale(0.98);
+        }
+
+        .filter-bar {
+            display: flex;
+            padding: 12px 16px;
+            gap: 24px;
+            overflow-x: auto;
+            background: white;
+            border-bottom: 1px solid #E5E7EB;
+            -webkit-overflow-scrolling: touch;
+        }
+
+        .filter-bar::-webkit-scrollbar {
+            display: none;
+        }
+
+        .filter-item {
+            position: relative;
+            color: #6B7280;
+            transition: all 0.2s;
+            cursor: pointer;
+            white-space: nowrap;
+            font-size: 15px;
+        }
+
+        .filter-item.active {
+            color: #059669;
+            font-weight: 500;
+        }
+
+        .filter-item.active::after {
+            content: '';
+            position: absolute;
+            bottom: -12px;
+            left: 0;
+            right: 0;
+            height: 2px;
+            background: #059669;
+            border-radius: 1px;
+        }
+
+        .filter-item:active {
+            transform: scale(0.95);
+            opacity: 0.8;
+        }
+
+        .product-card {
+            background: white;
+            border-radius: 12px;
+            overflow: hidden;
+            margin: 12px 16px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+            transition: all 0.2s;
+        }
+
+        .product-card:active {
+            transform: scale(0.97);
+            box-shadow: 0 1px 2px rgba(0,0,0,0.05);
+        }
+
+        .product-image {
+            position: relative;
+            aspect-ratio: 1;
+            background: #F3F4F6;
+        }
+
+        .product-image img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .product-tag {
+            position: absolute;
+            left: 12px;
+            top: 12px;
+            padding: 4px 8px;
+            background: rgba(5, 150, 105, 0.9);
+            color: white;
+            font-size: 12px;
+            border-radius: 4px;
+            backdrop-filter: blur(4px);
+        }
+
+        .product-info {
+            padding: 12px;
+        }
+
+        .product-name {
+            font-size: 15px;
+            color: #1F2937;
+            margin-bottom: 8px;
+            line-height: 1.4;
+        }
+
+        .product-price {
+            color: #EF4444;
+            font-size: 18px;
+            font-weight: 600;
+            margin-bottom: 8px;
+        }
+
+        .product-price small {
+            font-size: 14px;
+            font-weight: normal;
+        }
+
+        .product-meta {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-top: 8px;
+            font-size: 12px;
+            color: #6B7280;
+        }
+    </style>
+</head>
+<body>
+    <!-- 顶部搜索栏 -->
+    <div class="header">
+        <div class="search-bar">
+            <button class="back-btn" onclick="history.back()">
+                <i class="fas fa-arrow-left"></i>
+            </button>
+            <div class="search-input" onclick="location.href='search.html'">
+                <i class="fas fa-search text-gray-400"></i>
+                <span class="text-gray-400">搜索水果</span>
+            </div>
+        </div>
+        <div class="filter-bar">
+            <div class="filter-item active">综合排序</div>
+            <div class="filter-item">销量优先</div>
+            <div class="filter-item">价格优先</div>
+            <div class="filter-item" onclick="toggleFilter()">筛选</div>
+        </div>
+    </div>
+
+    <!-- 分类标签 -->
+    <div class="category-tabs" style="margin-top: calc(var(--safe-area-inset-top) + 92px);">
+        <div class="category-tab active">全部</div>
+        <div class="category-tab">苹果</div>
+        <div class="category-tab">橙子</div>
+        <div class="category-tab">梨</div>
+        <div class="category-tab">葡萄</div>
+        <div class="category-tab">柑橘</div>
+        <div class="category-tab">火龙果</div>
+        <div class="category-tab">猕猴桃</div>
+    </div>
+
+    <!-- 商品列表 -->
+    <div class="product-list" style="margin-top: 12px;">
+        <div class="product-card">
+            <div class="product-image">
+                <img src="https://images.unsplash.com/photo-1587049633312-d628ae50a8ae" alt="">
+                <div class="product-tag">现货</div>
+            </div>
+            <div class="product-info">
+                <div class="product-name">陕西洛川红富士苹果 脆甜多汁 新鲜采摘</div>
+                <div class="product-price">
+                    <small>¥</small>15.8<small>/kg</small>
+                </div>
+                <div>
+                    <span class="fruit-tag">
+                        <i class="fas fa-certificate"></i>
+                        绿色认证
+                    </span>
+                    <span class="fruit-tag">
+                        <i class="fas fa-leaf"></i>
+                        有机种植
+                    </span>
+                </div>
+                <div class="product-meta">
+                    <span class="fruit-origin">
+                        <i class="fas fa-map-marker-alt"></i>
+                        陕西·洛川
+                    </span>
+                    <span>已售 2.3万件</span>
+                </div>
+            </div>
+        </div>
+        <!-- 更多水果卡片 -->
+    </div>
+
+    <!-- 筛选抽屉 -->
+    <div class="drawer-mask" onclick="toggleFilter()"></div>
+    <div class="filter-drawer">
+        <div class="drawer-header">
+            <div class="drawer-title">筛选</div>
+            <button class="drawer-close" onclick="toggleFilter()">
+                <i class="fas fa-times"></i>
+            </button>
+        </div>
+        <div class="drawer-content">
+            <div class="filter-section">
+                <div class="filter-section-title">价格区间</div>
+                <div class="filter-options">
+                    <div class="filter-option">0-50元</div>
+                    <div class="filter-option active">50-100元</div>
+                    <div class="filter-option">100-200元</div>
+                    <div class="filter-option">200元以上</div>
+                </div>
+            </div>
+            <div class="filter-section">
+                <div class="filter-section-title">商家类型</div>
+                <div class="filter-options">
+                    <div class="filter-option active">认证农户</div>
+                    <div class="filter-option">合作社</div>
+                    <div class="filter-option">批发商</div>
+                </div>
+            </div>
+            <div class="filter-section">
+                <div class="filter-section-title">配送服务</div>
+                <div class="filter-options">
+                    <div class="filter-option">包邮</div>
+                    <div class="filter-option active">极速发货</div>
+                    <div class="filter-option">售后无忧</div>
+                </div>
+            </div>
+        </div>
+        <div class="drawer-footer">
+            <button class="reset-btn">重置</button>
+            <button class="confirm-btn">确定</button>
+        </div>
+    </div>
+
+    <script>
+        // 复用list.html的基础脚本
+        
+        // 筛选抽屉
+        const drawer = document.querySelector('.filter-drawer');
+        const mask = document.querySelector('.drawer-mask');
+        
+        function toggleFilter() {
+            drawer.classList.toggle('active');
+            mask.classList.toggle('active');
+        }
+
+        // 商品卡片点击
+        document.querySelectorAll('.product-card').forEach(card => {
+            card.addEventListener('click', (e) => {
+                // 添加点击动画
+                card.style.transform = 'scale(0.98)';
+                card.style.boxShadow = '0 1px 2px rgba(0,0,0,0.05)';
+                
+                // 延迟跳转以显示动画效果
+                setTimeout(() => {
+                    window.location.href = 'detail.html';
+                }, 100);
+            });
+        });
+
+        // 搜索框点击
+        document.querySelector('.search-input').addEventListener('click', (e) => {
+            const searchInput = e.currentTarget;
+            searchInput.style.background = '#E5E7EB';
+            searchInput.style.transform = 'scale(0.99)';
+            
+            setTimeout(() => {
+                window.location.href = 'search.html';
+            }, 100);
+        });
+
+        // 排序选项点击
+        document.querySelectorAll('.filter-item').forEach(item => {
+            item.addEventListener('click', () => {
+                document.querySelectorAll('.filter-item').forEach(i => i.classList.remove('active'));
+                item.classList.add('active');
+                
+                // 添加点击动画
+                item.style.opacity = '0.7';
+                item.style.transform = 'scale(0.95)';
+                
+                setTimeout(() => {
+                    item.style.opacity = '';
+                    item.style.transform = '';
+                }, 200);
+            });
+        });
+
+        // 分类标签点击
+        const categoryTabs = document.querySelectorAll('.category-tab');
+        categoryTabs.forEach(tab => {
+            tab.addEventListener('click', () => {
+                categoryTabs.forEach(t => t.classList.remove('active'));
+                tab.classList.add('active');
+                
+                // 添加点击动画
+                tab.style.opacity = '0.8';
+                tab.style.transform = 'scale(0.95)';
+                
+                setTimeout(() => {
+                    tab.style.opacity = '';
+                    tab.style.transform = '';
+                }, 200);
+                
+                console.log('切换到分类:', tab.textContent);
+            });
+        });
+
+        // 筛选选项点击
+        document.querySelectorAll('.filter-option').forEach(option => {
+            option.addEventListener('click', function() {
+                const parent = this.parentElement;
+                parent.querySelector('.active')?.classList.remove('active');
+                this.classList.add('active');
+            });
+        });
+
+        // 重置按钮点击效果
+        document.querySelector('.reset-btn').addEventListener('click', () => {
+            document.querySelectorAll('.filter-option').forEach(option => {
+                option.classList.remove('active');
+            });
+        });
+
+        // 确定按钮点击效果
+        document.querySelector('.confirm-btn').addEventListener('click', () => {
+            toggleFilter();
+            // 这里可以添加筛选条件的处理逻辑
+        });
+    </script>
+</body>
+</html> 

@@ -1,0 +1,348 @@
+<!DOCTYPE html>
+<html lang="zh-CN" class="h-full">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, user-scalable=no">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <title>农财通 - 分类</title>
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        :root {
+            --safe-area-inset-top: env(safe-area-inset-top);
+            --safe-area-inset-bottom: env(safe-area-inset-bottom);
+        }
+        body {
+            background-color: #f8fafc;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            padding-bottom: calc(60px + var(--safe-area-inset-bottom));
+            -webkit-tap-highlight-color: transparent;
+            height: 100%;
+        }
+        .header {
+            background: white;
+            padding: calc(var(--safe-area-inset-top) + 12px) 20px 12px 20px;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 40;
+            border-bottom: 1px solid rgba(0,0,0,0.05);
+        }
+        .search-bar {
+            background: #F3F4F6;
+            border-radius: 24px;
+            padding: 8px 16px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            transition: all 0.2s;
+        }
+        .search-bar:active {
+            background: #E5E7EB;
+        }
+        .container {
+            display: flex;
+            padding-top: calc(var(--safe-area-inset-top) + 60px);
+            height: 100vh;
+        }
+        .sidebar {
+            width: 90px;
+            background: white;
+            border-right: 1px solid rgba(0,0,0,0.05);
+            overflow-y: auto;
+            -webkit-overflow-scrolling: touch;
+            flex-shrink: 0;
+        }
+        .sidebar::-webkit-scrollbar {
+            display: none;
+        }
+        .menu-item {
+            padding: 16px 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 8px;
+            color: #6B7280;
+            position: relative;
+            transition: all 0.2s;
+        }
+        .menu-item.active {
+            color: #059669;
+        }
+        .menu-item.active::after {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 50%;
+            width: 3px;
+            height: 16px;
+            background: #059669;
+            border-radius: 0 2px 2px 0;
+            transform: translateY(-50%);
+        }
+        .menu-icon {
+            font-size: 20px;
+        }
+        .menu-text {
+            font-size: 12px;
+        }
+        .content {
+            flex: 1;
+            overflow-y: auto;
+            -webkit-overflow-scrolling: touch;
+            padding: 20px;
+            background: #F9FAFB;
+        }
+        .content::-webkit-scrollbar {
+            display: none;
+        }
+        .category-title {
+            font-size: 16px;
+            font-weight: 600;
+            color: #1F2937;
+            margin-bottom: 16px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .category-title::before {
+            content: '';
+            width: 3px;
+            height: 16px;
+            background: #059669;
+            border-radius: 1.5px;
+        }
+        .subcategory-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 12px;
+            margin-bottom: 24px;
+        }
+        .subcategory-item {
+            background: white;
+            border-radius: 12px;
+            padding: 16px;
+            text-align: center;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+            transition: transform 0.2s;
+        }
+        .subcategory-item:active {
+            transform: scale(0.95);
+        }
+        .subcategory-icon {
+            width: 48px;
+            height: 48px;
+            margin: 0 auto 8px;
+            background: #F0FDF4;
+            border-radius: 16px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+            color: #059669;
+        }
+        .subcategory-name {
+            font-size: 13px;
+            color: #374151;
+        }
+        .nav-bar {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: white;
+            padding: 8px 0 calc(8px + var(--safe-area-inset-bottom));
+            border-top: 1px solid rgba(0,0,0,0.05);
+            display: grid;
+            grid-template-columns: repeat(5, 1fr);
+            gap: 4px;
+            z-index: 40;
+        }
+        .nav-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 4px;
+            color: #6B7280;
+            font-size: 20px;
+            padding: 4px 0;
+        }
+        .nav-item.active {
+            color: #059669;
+        }
+        .nav-item span {
+            font-size: 12px;
+        }
+        .nav-item:active {
+            opacity: 0.7;
+        }
+    </style>
+</head>
+<body>
+    <!-- 顶部搜索栏 -->
+    <div class="header">
+        <div class="search-bar" onclick="window.location.href='search.html'">
+            <i class="fas fa-search text-gray-400"></i>
+            <span class="text-gray-400 text-sm">搜索农产品/农资</span>
+        </div>
+    </div>
+
+    <!-- 主要内容 -->
+    <div class="container">
+        <!-- 左侧菜单 -->
+        <div class="sidebar">
+            <div class="menu-item active">
+                <i class="fas fa-apple-alt menu-icon"></i>
+                <span class="menu-text">水果</span>
+            </div>
+            <div class="menu-item">
+                <i class="fas fa-carrot menu-icon"></i>
+                <span class="menu-text">蔬菜</span>
+            </div>
+            <div class="menu-item">
+                <i class="fas fa-seedling menu-icon"></i>
+                <span class="menu-text">农资</span>
+            </div>
+            <div class="menu-item">
+                <i class="fas fa-tractor menu-icon"></i>
+                <span class="menu-text">农机</span>
+            </div>
+            <div class="menu-item">
+                <i class="fas fa-warehouse menu-icon"></i>
+                <span class="menu-text">仓储</span>
+            </div>
+            <div class="menu-item">
+                <i class="fas fa-truck menu-icon"></i>
+                <span class="menu-text">物流</span>
+            </div>
+            <div class="menu-item">
+                <i class="fas fa-tools menu-icon"></i>
+                <span class="menu-text">农技</span>
+            </div>
+            <div class="menu-item">
+                <i class="fas fa-hand-holding-usd menu-icon"></i>
+                <span class="menu-text">金融</span>
+            </div>
+        </div>
+
+        <!-- 右侧内容 -->
+        <div class="content">
+            <div class="category-title">时令水果</div>
+            <div class="subcategory-grid">
+                <div class="subcategory-item">
+                    <div class="subcategory-icon">
+                        <i class="fas fa-apple-alt"></i>
+                    </div>
+                    <div class="subcategory-name">苹果</div>
+                </div>
+                <div class="subcategory-item">
+                    <div class="subcategory-icon">
+                        <i class="fas fa-lemon"></i>
+                    </div>
+                    <div class="subcategory-name">柑橘</div>
+                </div>
+                <div class="subcategory-item">
+                    <div class="subcategory-icon">
+                        <i class="fas fa-apple-alt"></i>
+                    </div>
+                    <div class="subcategory-name">草莓</div>
+                </div>
+            </div>
+
+            <div class="category-title">热带水果</div>
+            <div class="subcategory-grid">
+                <div class="subcategory-item">
+                    <div class="subcategory-icon">
+                        <i class="fas fa-apple-alt"></i>
+                    </div>
+                    <div class="subcategory-name">芒果</div>
+                </div>
+                <div class="subcategory-item">
+                    <div class="subcategory-icon">
+                        <i class="fas fa-lemon"></i>
+                    </div>
+                    <div class="subcategory-name">香蕉</div>
+                </div>
+                <div class="subcategory-item">
+                    <div class="subcategory-icon">
+                        <i class="fas fa-apple-alt"></i>
+                    </div>
+                    <div class="subcategory-name">菠萝</div>
+                </div>
+            </div>
+
+            <div class="category-title">特色水果</div>
+            <div class="subcategory-grid">
+                <div class="subcategory-item">
+                    <div class="subcategory-icon">
+                        <i class="fas fa-apple-alt"></i>
+                    </div>
+                    <div class="subcategory-name">火龙果</div>
+                </div>
+                <div class="subcategory-item">
+                    <div class="subcategory-icon">
+                        <i class="fas fa-lemon"></i>
+                    </div>
+                    <div class="subcategory-name">榴莲</div>
+                </div>
+                <div class="subcategory-item">
+                    <div class="subcategory-icon">
+                        <i class="fas fa-apple-alt"></i>
+                    </div>
+                    <div class="subcategory-name">椰子</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 底部导航栏 -->
+    <div class="nav-bar">
+        <a href="home.html" class="nav-item">
+            <i class="fas fa-home"></i>
+            <span>首页</span>
+        </a>
+        <a href="category.html" class="nav-item active">
+            <i class="fas fa-th-large"></i>
+            <span>分类</span>
+        </a>
+        <a href="publish.html" class="nav-item">
+            <i class="fas fa-plus-circle"></i>
+            <span>发布</span>
+        </a>
+        <a href="message.html" class="nav-item">
+            <i class="far fa-comment-dots"></i>
+            <span>消息</span>
+        </a>
+        <a href="profile.html" class="nav-item">
+            <i class="far fa-user"></i>
+            <span>我的</span>
+        </a>
+    </div>
+
+    <script>
+        // 左侧菜单点击效果
+        const menuItems = document.querySelectorAll('.menu-item');
+        menuItems.forEach(item => {
+            item.addEventListener('click', () => {
+                menuItems.forEach(i => i.classList.remove('active'));
+                item.classList.add('active');
+            });
+        });
+
+        // 子分类点击效果
+        document.querySelectorAll('.subcategory-item').forEach(item => {
+            item.addEventListener('click', () => {
+                // 这里添加跳转到对应分类列表页的逻辑
+                console.log('跳转到分类:', item.querySelector('.subcategory-name').textContent);
+            });
+        });
+
+        // 搜索栏点击跳转
+        document.querySelector('.search-bar').addEventListener('click', () => {
+            window.location.href = 'search.html';
+        });
+    </script>
+</body>
+</html> 

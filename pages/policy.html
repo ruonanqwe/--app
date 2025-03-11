@@ -1,0 +1,288 @@
+<!DOCTYPE html>
+<html lang="zh-CN" class="h-full">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, user-scalable=no">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <title>农财通 - 政策申请</title>
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        :root {
+            --safe-area-inset-top: env(safe-area-inset-top);
+            --safe-area-inset-bottom: env(safe-area-inset-bottom);
+        }
+        
+        body {
+            background-color: #f8fafc;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            padding-bottom: calc(var(--safe-area-inset-bottom));
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        .header {
+            background: white;
+            padding: max(var(--safe-area-inset-top), 12px) 16px 12px;
+            position: sticky;
+            top: 0;
+            z-index: 40;
+            box-shadow: 0 1px 2px rgba(0,0,0,0.05);
+        }
+
+        .policy-card {
+            background: white;
+            border-radius: 12px;
+            padding: 16px;
+            margin-bottom: 16px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+            transition: transform 0.2s;
+        }
+
+        .policy-card:active {
+            transform: scale(0.98);
+        }
+
+        .tag {
+            display: inline-block;
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 12px;
+            margin-right: 8px;
+        }
+
+        .tag.green {
+            background: #ECFDF5;
+            color: #059669;
+        }
+
+        .tag.blue {
+            background: #EFF6FF;
+            color: #3B82F6;
+        }
+
+        .tag.yellow {
+            background: #FFFBEB;
+            color: #D97706;
+        }
+
+        .apply-btn {
+            background: #059669;
+            color: white;
+            padding: 8px 16px;
+            border-radius: 8px;
+            font-size: 14px;
+            transition: all 0.2s;
+        }
+
+        .apply-btn:active {
+            transform: scale(0.95);
+            background: #047857;
+        }
+
+        .apply-form {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0,0,0,0.5);
+            z-index: 50;
+            animation: fadeIn 0.3s ease-out;
+        }
+
+        .form-content {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: white;
+            border-radius: 20px 20px 0 0;
+            padding: 20px;
+            transform: translateY(100%);
+            animation: slideUp 0.3s ease-out forwards;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        @keyframes slideUp {
+            to { transform: translateY(0); }
+        }
+
+        .form-group {
+            margin-bottom: 16px;
+        }
+
+        .form-label {
+            display: block;
+            font-size: 14px;
+            color: #4B5563;
+            margin-bottom: 8px;
+        }
+
+        .form-input {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid #E5E7EB;
+            border-radius: 8px;
+            font-size: 15px;
+            transition: all 0.2s;
+        }
+
+        .form-input:focus {
+            outline: none;
+            border-color: #059669;
+            box-shadow: 0 0 0 2px rgba(5,150,105,0.1);
+        }
+
+        .submit-btn {
+            width: 100%;
+            padding: 14px;
+            background: #059669;
+            color: white;
+            border-radius: 10px;
+            font-size: 16px;
+            font-weight: 600;
+            margin-top: 20px;
+            transition: all 0.2s;
+        }
+
+        .submit-btn:active {
+            transform: scale(0.98);
+            background: #047857;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <div class="flex items-center gap-3">
+            <button class="w-8 h-8 flex items-center justify-center text-gray-700" onclick="history.back()">
+                <i class="fas fa-arrow-left"></i>
+            </button>
+            <h1 class="text-lg font-semibold text-gray-900">政策申请</h1>
+        </div>
+    </div>
+
+    <div class="p-4">
+        <!-- 政策列表 -->
+        <div class="policy-card" onclick="showApplyForm('农机购置补贴')">
+            <div class="flex justify-between items-start mb-3">
+                <div>
+                    <h3 class="text-lg font-semibold text-gray-900 mb-2">农机购置补贴</h3>
+                    <div class="flex gap-2 mb-2">
+                        <span class="tag green">补贴政策</span>
+                        <span class="tag blue">农机类</span>
+                    </div>
+                </div>
+                <button class="apply-btn">立即申请</button>
+            </div>
+            <p class="text-gray-600 text-sm mb-2">补贴标准：购机价格的30%，最高不超过5万元</p>
+            <p class="text-gray-500 text-xs">申请截止：2024-12-31</p>
+        </div>
+
+        <div class="policy-card" onclick="showApplyForm('农资综合补贴')">
+            <div class="flex justify-between items-start mb-3">
+                <div>
+                    <h3 class="text-lg font-semibold text-gray-900 mb-2">农资综合补贴</h3>
+                    <div class="flex gap-2 mb-2">
+                        <span class="tag green">补贴政策</span>
+                        <span class="tag yellow">农资类</span>
+                    </div>
+                </div>
+                <button class="apply-btn">立即申请</button>
+            </div>
+            <p class="text-gray-600 text-sm mb-2">补贴标准：每亩补贴100元，最高不超过2万元</p>
+            <p class="text-gray-500 text-xs">申请截止：2024-06-30</p>
+        </div>
+
+        <div class="policy-card" onclick="showApplyForm('设施农业补贴')">
+            <div class="flex justify-between items-start mb-3">
+                <div>
+                    <h3 class="text-lg font-semibold text-gray-900 mb-2">设施农业补贴</h3>
+                    <div class="flex gap-2 mb-2">
+                        <span class="tag green">补贴政策</span>
+                        <span class="tag blue">设施类</span>
+                    </div>
+                </div>
+                <button class="apply-btn">立即申请</button>
+            </div>
+            <p class="text-gray-600 text-sm mb-2">补贴标准：建设成本的40%，最高不超过10万元</p>
+            <p class="text-gray-500 text-xs">申请截止：2024-09-30</p>
+        </div>
+    </div>
+
+    <!-- 申请表单 -->
+    <div class="apply-form" id="applyForm">
+        <div class="form-content">
+            <div class="flex justify-between items-center mb-6">
+                <h2 class="text-xl font-semibold text-gray-900" id="formTitle">政策申请</h2>
+                <button onclick="hideApplyForm()" class="w-8 h-8 flex items-center justify-center text-gray-500">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+
+            <form onsubmit="submitForm(event)">
+                <div class="form-group">
+                    <label class="form-label">申请人姓名</label>
+                    <input type="text" class="form-input" placeholder="请输入真实姓名" required>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">身份证号</label>
+                    <input type="text" class="form-input" placeholder="请输入18位身份证号" required pattern="[0-9Xx]{18}">
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">联系电话</label>
+                    <input type="tel" class="form-input" placeholder="请输入手机号码" required pattern="[0-9]{11}">
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">申请地区</label>
+                    <input type="text" class="form-input" placeholder="请输入详细地址" required>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">申请说明</label>
+                    <textarea class="form-input" rows="4" placeholder="请详细描述申请原因和具体需求" required></textarea>
+                </div>
+
+                <button type="submit" class="submit-btn">
+                    提交申请
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        function showApplyForm(title) {
+            document.getElementById('formTitle').textContent = title + '申请';
+            document.getElementById('applyForm').style.display = 'block';
+            document.body.style.overflow = 'hidden';
+        }
+
+        function hideApplyForm() {
+            document.getElementById('applyForm').style.display = 'none';
+            document.body.style.overflow = 'auto';
+        }
+
+        function submitForm(event) {
+            event.preventDefault();
+            // 这里添加表单提交逻辑
+            alert('申请提交成功！我们会尽快审核您的申请。');
+            hideApplyForm();
+        }
+
+        // 点击遮罩层关闭表单
+        document.getElementById('applyForm').addEventListener('click', function(e) {
+            if (e.target === this) {
+                hideApplyForm();
+            }
+        });
+    </script>
+</body>
+</html> 

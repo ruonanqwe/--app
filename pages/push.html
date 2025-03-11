@@ -1,0 +1,254 @@
+<!DOCTYPE html>
+<html lang="zh-CN" class="h-full">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, user-scalable=no">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <title>农财通 - 农资推送</title>
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        :root {
+            --safe-area-inset-top: env(safe-area-inset-top);
+            --safe-area-inset-bottom: env(safe-area-inset-bottom);
+        }
+        
+        body {
+            background-color: #f8fafc;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            padding-bottom: calc(var(--safe-area-inset-bottom));
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        .header {
+            background: white;
+            padding: max(var(--safe-area-inset-top), 12px) 16px 12px;
+            position: sticky;
+            top: 0;
+            z-index: 40;
+            box-shadow: 0 1px 2px rgba(0,0,0,0.05);
+        }
+
+        .category-tabs {
+            display: flex;
+            gap: 16px;
+            padding: 12px 16px;
+            overflow-x: auto;
+            background: white;
+            -webkit-overflow-scrolling: touch;
+        }
+
+        .category-tabs::-webkit-scrollbar {
+            display: none;
+        }
+
+        .tab {
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-size: 14px;
+            white-space: nowrap;
+            transition: all 0.2s;
+        }
+
+        .tab.active {
+            background: #059669;
+            color: white;
+        }
+
+        .push-card {
+            background: white;
+            border-radius: 12px;
+            margin: 16px;
+            overflow: hidden;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+        }
+
+        .push-image {
+            width: 100%;
+            height: 200px;
+            object-fit: cover;
+        }
+
+        .push-content {
+            padding: 16px;
+        }
+
+        .price-trend {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-top: 8px;
+        }
+
+        .trend-arrow {
+            width: 20px;
+            height: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 10px;
+            font-size: 12px;
+        }
+
+        .trend-up {
+            background: #FEE2E2;
+            color: #EF4444;
+        }
+
+        .trend-down {
+            background: #ECFDF5;
+            color: #059669;
+        }
+
+        .action-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            padding: 8px 16px;
+            border-radius: 8px;
+            font-size: 14px;
+            transition: all 0.2s;
+        }
+
+        .primary-btn {
+            background: #059669;
+            color: white;
+        }
+
+        .primary-btn:active {
+            transform: scale(0.95);
+            background: #047857;
+        }
+
+        .secondary-btn {
+            background: #F3F4F6;
+            color: #374151;
+        }
+
+        .secondary-btn:active {
+            transform: scale(0.95);
+            background: #E5E7EB;
+        }
+
+        .notification {
+            position: fixed;
+            top: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(0,0,0,0.8);
+            color: white;
+            padding: 12px 20px;
+            border-radius: 8px;
+            font-size: 14px;
+            z-index: 50;
+            display: none;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <div class="flex items-center gap-3">
+            <button class="w-8 h-8 flex items-center justify-center text-gray-700" onclick="history.back()">
+                <i class="fas fa-arrow-left"></i>
+            </button>
+            <h1 class="text-lg font-semibold text-gray-900">农资推送</h1>
+        </div>
+    </div>
+
+    <div class="category-tabs">
+        <button class="tab active" onclick="switchTab(this)">全部</button>
+        <button class="tab" onclick="switchTab(this)">农机</button>
+        <button class="tab" onclick="switchTab(this)">化肥</button>
+        <button class="tab" onclick="switchTab(this)">农药</button>
+        <button class="tab" onclick="switchTab(this)">种子</button>
+        <button class="tab" onclick="switchTab(this)">农膜</button>
+    </div>
+
+    <div class="push-list">
+        <!-- 农机推送 -->
+        <div class="push-card">
+            <img src="https://api.dicebear.com/7.x/shapes/svg?seed=tractor&backgroundColor=059669" alt="农机" class="push-image">
+            <div class="push-content">
+                <h3 class="text-lg font-semibold text-gray-900 mb-2">新型智能插秧机推荐</h3>
+                <p class="text-gray-600 text-sm mb-3">高效智能插秧机，自动行走、自动插秧，效率提升300%</p>
+                <div class="price-trend">
+                    <span class="text-sm text-gray-500">市场均价：</span>
+                    <span class="font-semibold text-gray-900">¥68,000</span>
+                    <span class="trend-arrow trend-down">
+                        <i class="fas fa-arrow-down"></i>
+                    </span>
+                    <span class="text-sm text-green-600">-5%</span>
+                </div>
+                <div class="flex gap-3 mt-4">
+                    <button class="action-btn primary-btn" onclick="showNotification('已添加到关注列表')">
+                        <i class="fas fa-star"></i>
+                        <span>关注</span>
+                    </button>
+                    <button class="action-btn secondary-btn" onclick="location.href='detail.html'">
+                        <i class="fas fa-info-circle"></i>
+                        <span>详情</span>
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- 化肥推送 -->
+        <div class="push-card">
+            <img src="https://api.dicebear.com/7.x/shapes/svg?seed=fertilizer&backgroundColor=3B82F6" alt="化肥" class="push-image">
+            <div class="push-content">
+                <h3 class="text-lg font-semibold text-gray-900 mb-2">有机复合肥特惠</h3>
+                <p class="text-gray-600 text-sm mb-3">含氮磷钾，适合各类农作物，提升产量20%以上</p>
+                <div class="price-trend">
+                    <span class="text-sm text-gray-500">市场均价：</span>
+                    <span class="font-semibold text-gray-900">¥2,800/吨</span>
+                    <span class="trend-arrow trend-up">
+                        <i class="fas fa-arrow-up"></i>
+                    </span>
+                    <span class="text-sm text-red-600">+3%</span>
+                </div>
+                <div class="flex gap-3 mt-4">
+                    <button class="action-btn primary-btn" onclick="showNotification('已添加到关注列表')">
+                        <i class="fas fa-star"></i>
+                        <span>关注</span>
+                    </button>
+                    <button class="action-btn secondary-btn" onclick="location.href='detail.html'">
+                        <i class="fas fa-info-circle"></i>
+                        <span>详情</span>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="notification" id="notification"></div>
+
+    <script>
+        function switchTab(tab) {
+            // 移除所有tab的active类
+            document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+            // 添加当前tab的active类
+            tab.classList.add('active');
+            // 这里可以添加切换内容的逻辑
+        }
+
+        function showNotification(message) {
+            const notification = document.getElementById('notification');
+            notification.textContent = message;
+            notification.style.display = 'block';
+            
+            // 2秒后隐藏通知
+            setTimeout(() => {
+                notification.style.display = 'none';
+            }, 2000);
+        }
+
+        // 页面加载完成后自动显示推送通知
+        window.addEventListener('load', () => {
+            setTimeout(() => {
+                showNotification('发现2条新的农资信息');
+            }, 1000);
+        });
+    </script>
+</body>
+</html> 

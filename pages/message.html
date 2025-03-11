@@ -1,0 +1,351 @@
+<!DOCTYPE html>
+<html lang="zh-CN" class="h-full">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, user-scalable=no">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <title>农财通 - 消息</title>
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        :root {
+            --safe-area-inset-top: env(safe-area-inset-top);
+            --safe-area-inset-bottom: env(safe-area-inset-bottom);
+        }
+        body {
+            background-color: #f8fafc;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            padding-bottom: calc(60px + var(--safe-area-inset-bottom));
+            -webkit-tap-highlight-color: transparent;
+            height: 100%;
+        }
+        .nav-bar {
+            height: calc(60px + var(--safe-area-inset-bottom));
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            border-top: 1px solid rgba(0,0,0,0.05);
+            padding-bottom: var(--safe-area-inset-bottom);
+            z-index: 50;
+        }
+        .header {
+            background: #ffffff;
+            padding: calc(var(--safe-area-inset-top) + 12px) 20px 12px 20px;
+            position: sticky;
+            top: 0;
+            z-index: 40;
+            border-bottom: 1px solid rgba(0,0,0,0.05);
+        }
+        .message-tabs {
+            background: white;
+            padding: 8px 20px;
+            display: flex;
+            gap: 32px;
+            position: sticky;
+            top: calc(var(--safe-area-inset-top) + 52px);
+            z-index: 30;
+            border-bottom: 1px solid rgba(0,0,0,0.05);
+        }
+        .tab-item {
+            padding: 8px 0;
+            font-size: 15px;
+            color: #6B7280;
+            position: relative;
+        }
+        .tab-item.active {
+            color: #10B981;
+            font-weight: 500;
+        }
+        .tab-item.active::after {
+            content: '';
+            position: absolute;
+            bottom: -9px;
+            left: 0;
+            right: 0;
+            height: 3px;
+            background: #10B981;
+            border-radius: 1.5px;
+        }
+        .message-list {
+            padding: 12px 20px;
+        }
+        .message-card {
+            background: white;
+            border-radius: 16px;
+            padding: 16px;
+            margin-bottom: 12px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            transition: transform 0.2s, box-shadow 0.2s;
+            cursor: pointer;
+            will-change: transform;
+        }
+        .message-card:active {
+            transform: scale(0.98);
+            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+        }
+        .message-avatar {
+            width: 48px;
+            height: 48px;
+            border-radius: 24px;
+            background: #f3f4f6;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #10B981;
+            font-size: 24px;
+            flex-shrink: 0;
+        }
+        .message-content {
+            flex: 1;
+            min-width: 0;
+        }
+        .message-title {
+            font-size: 15px;
+            font-weight: 500;
+            color: #1F2937;
+            margin-bottom: 4px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .message-preview {
+            font-size: 13px;
+            color: #6B7280;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+        .message-time {
+            font-size: 12px;
+            color: #9CA3AF;
+        }
+        .message-badge {
+            background: #EF4444;
+            color: white;
+            font-size: 12px;
+            padding: 2px 6px;
+            border-radius: 8px;
+            margin-left: 8px;
+            animation: bounce 1s infinite;
+        }
+        @keyframes bounce {
+            0%, 100% {
+                transform: translateY(0);
+            }
+            50% {
+                transform: translateY(-2px);
+            }
+        }
+        .system-notice {
+            background: linear-gradient(135deg, #10B981 20%, #047857 100%);
+            border-radius: 16px;
+            padding: 16px;
+            margin: 0 20px 12px 20px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            color: white;
+            transition: transform 0.2s;
+            cursor: pointer;
+        }
+        .system-notice:active {
+            transform: scale(0.98);
+        }
+        .notice-icon {
+            width: 40px;
+            height: 40px;
+            background: rgba(255,255,255,0.2);
+            border-radius: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 20px;
+            backdrop-filter: blur(4px);
+        }
+        .tab-item {
+            transition: color 0.3s;
+            cursor: pointer;
+        }
+        .tab-item::after {
+            transition: all 0.3s;
+            transform: scaleX(0);
+        }
+        .tab-item.active::after {
+            transform: scaleX(1);
+        }
+        .message-list {
+            animation: slideUp 0.5s ease-out;
+        }
+        @keyframes slideUp {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+    </style>
+</head>
+<body class="min-h-full">
+    <!-- 头部标题 -->
+    <div class="header">
+        <h1 class="text-xl font-semibold text-gray-900">消息</h1>
+    </div>
+
+    <!-- 消息分类标签 -->
+    <div class="message-tabs">
+        <div class="tab-item active">全部</div>
+        <div class="tab-item">系统</div>
+        <div class="tab-item">聊天</div>
+        <div class="tab-item">通知</div>
+    </div>
+
+    <!-- 系统通知 -->
+    <div class="system-notice">
+        <div class="notice-icon">
+            <i class="fas fa-bell"></i>
+        </div>
+        <div class="flex-1">
+            <h3 class="font-semibold text-base">系统公告</h3>
+            <p class="text-sm opacity-90 mt-1">新用户注册即送100积分，邀请好友最高得500积分！</p>
+        </div>
+        <i class="fas fa-chevron-right opacity-60"></i>
+    </div>
+
+    <!-- 消息列表 -->
+    <div class="message-list">
+        <div class="message-card">
+            <div class="message-avatar bg-green-50">
+                <i class="fas fa-store"></i>
+            </div>
+            <div class="message-content">
+                <div class="message-title">
+                    <span>四川成都水果批发商</span>
+                    <span class="message-time">12:30</span>
+                </div>
+                <div class="message-preview">
+                    您好，我对您发布的红富士苹果很感兴趣，能详细聊聊吗？
+                </div>
+            </div>
+        </div>
+
+        <div class="message-card">
+            <div class="message-avatar bg-blue-50">
+                <i class="fas fa-user"></i>
+            </div>
+            <div class="message-content">
+                <div class="message-title">
+                    <div class="flex items-center">
+                        <span>张老板</span>
+                        <span class="message-badge">2</span>
+                    </div>
+                    <span class="message-time">昨天</span>
+                </div>
+                <div class="message-preview">
+                    最近化肥价格怎么样？能给个优惠价不？
+                </div>
+            </div>
+        </div>
+
+        <div class="message-card">
+            <div class="message-avatar bg-yellow-50">
+                <i class="fas fa-bell"></i>
+            </div>
+            <div class="message-content">
+                <div class="message-title">
+                    <span>系统通知</span>
+                    <span class="message-time">星期一</span>
+                </div>
+                <div class="message-preview">
+                    恭喜您完成今日签到，获得5积分奖励！
+                </div>
+            </div>
+        </div>
+
+        <div class="message-card">
+            <div class="message-avatar bg-purple-50">
+                <i class="fas fa-comment-dots"></i>
+            </div>
+            <div class="message-content">
+                <div class="message-title">
+                    <span>农技专家</span>
+                    <span class="message-time">星期日</span>
+                </div>
+                <div class="message-preview">
+                    关于水稻病虫害防治的问题，建议您可以...
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 底部导航栏 -->
+    <nav class="nav-bar">
+        <div class="grid grid-cols-5 h-full">
+            <a href="home.html" class="flex flex-col items-center justify-center text-gray-400">
+                <i class="fas fa-home"></i>
+                <span class="text-xs mt-1">首页</span>
+            </a>
+            <a href="category.html" class="flex flex-col items-center justify-center text-gray-400">
+                <i class="fas fa-th-large"></i>
+                <span class="text-xs mt-1">分类</span>
+            </a>
+            <a href="publish.html" class="flex flex-col items-center justify-center text-gray-400">
+                <i class="fas fa-plus-circle"></i>
+                <span class="text-xs mt-1">发布</span>
+            </a>
+            <a href="message.html" class="flex flex-col items-center justify-center text-green-600">
+                <i class="fas fa-comment"></i>
+                <span class="text-xs mt-1">消息</span>
+            </a>
+            <a href="profile.html" class="flex flex-col items-center justify-center text-gray-400">
+                <i class="fas fa-user"></i>
+                <span class="text-xs mt-1">我的</span>
+            </a>
+        </div>
+    </nav>
+
+    <script>
+        // 标签切换效果
+        const tabItems = document.querySelectorAll('.tab-item');
+        const messageList = document.querySelector('.message-list');
+        
+        tabItems.forEach(tab => {
+            tab.addEventListener('click', () => {
+                // 移除所有active类
+                tabItems.forEach(t => t.classList.remove('active'));
+                // 添加active类到当前标签
+                tab.classList.add('active');
+                
+                // 模拟消息列表切换动画
+                messageList.style.animation = 'none';
+                messageList.offsetHeight; // 触发重绘
+                messageList.style.animation = 'slideUp 0.5s ease-out';
+            });
+        });
+        
+        // 消息卡片点击效果
+        const messageCards = document.querySelectorAll('.message-card');
+        messageCards.forEach(card => {
+            card.addEventListener('click', () => {
+                // 这里可以添加跳转到聊天详情的逻辑
+                console.log('跳转到聊天详情');
+            });
+        });
+        
+        // 系统通知点击效果
+        const systemNotice = document.querySelector('.system-notice');
+        systemNotice.addEventListener('click', () => {
+            // 这里可以添加查看系统通知详情的逻辑
+            console.log('查看系统通知详情');
+        });
+    </script>
+</body>
+</html> 

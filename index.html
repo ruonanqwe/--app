@@ -1,0 +1,679 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>农财通 - 原型预览</title>
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        :root {
+            --prototype-width: min(390px, 100vw);
+            --prototype-height: min(844px, 100vh);
+        }
+
+        body {
+            background-color: #f8fafc;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            -webkit-tap-highlight-color: transparent;
+            scroll-behavior: smooth;
+        }
+
+        .nav-tabs {
+            position: sticky;
+            top: 0;
+            background: white;
+            z-index: 30;
+            padding: 8px 12px;
+            overflow-x: auto;
+            -webkit-overflow-scrolling: touch;
+            scrollbar-width: none;
+            display: flex;
+            gap: 8px;
+            border-bottom: 1px solid #E5E7EB;
+        }
+
+        .nav-tabs::-webkit-scrollbar {
+            display: none;
+        }
+
+        .nav-tab {
+            padding: 8px 20px;
+            border-radius: 20px;
+            font-size: 14px;
+            white-space: nowrap;
+            transition: all 0.2s;
+            background: #F3F4F6;
+            color: #374151;
+        }
+
+        .nav-tab.active {
+            background: #1F2937;
+            color: white;
+        }
+
+        .nav-tab:active {
+            transform: scale(0.95);
+            opacity: 0.9;
+        }
+
+        .prototype-container {
+            width: var(--prototype-width);
+            height: var(--prototype-height);
+            border-radius: min(45px, 6vw);
+            overflow: hidden;
+            position: relative;
+            background: white;
+            margin: 10px auto;
+            box-shadow: 0 0 15px rgba(0,0,0,0.1);
+            transition: all 0.3s;
+        }
+
+        .prototype-container:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 8px 30px rgba(0,0,0,0.15);
+        }
+
+        .status-bar {
+            height: 44px;
+            background: #000;
+            position: relative;
+            z-index: 100;
+        }
+
+        .dynamic-island {
+            width: min(126px, 32vw);
+            height: 37px;
+            background: #000;
+            position: absolute;
+            top: 0;
+            left: 50%;
+            transform: translateX(-50%);
+            border-radius: 0 0 20px 20px;
+        }
+
+        .prototype-frame {
+            width: 100%;
+            height: calc(100% - 44px);
+            border: none;
+        }
+
+        .prototypes-grid {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            padding: 10px;
+            max-width: 1600px;
+            margin: 0 auto;
+        }
+
+        .section-content {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(var(--prototype-width), 1fr));
+            gap: 20px;
+            padding: 0 10px 10px;
+        }
+
+        .section-empty {
+            grid-column: 1 / -1;
+            text-align: center;
+            padding: 40px;
+            color: #6B7280;
+            font-size: 14px;
+            background: #F9FAFB;
+            border-radius: 12px;
+            margin: 20px;
+        }
+
+        .section-empty i {
+            font-size: 24px;
+            margin-bottom: 8px;
+            color: #9CA3AF;
+        }
+
+        .coming-soon {
+            position: relative;
+            opacity: 0.6;
+        }
+
+        .coming-soon::after {
+            content: '开发中';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: rgba(0, 0, 0, 0.7);
+            color: white;
+            padding: 6px 12px;
+            border-radius: 16px;
+            font-size: 13px;
+            z-index: 10;
+        }
+
+        .prototype-label {
+            position: absolute;
+            bottom: -24px;
+            left: 0;
+            right: 0;
+            text-align: center;
+            font-size: 13px;
+            color: #374151;
+            padding: 0 4px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .prototype-wrapper {
+            position: relative;
+            padding-bottom: 24px;
+            opacity: 0;
+            transform: translateY(20px);
+            animation: fadeInUp 0.5s forwards;
+            margin: 0;
+            width: 100%;
+        }
+
+        @keyframes fadeInUp {
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .section-title {
+            width: 100%;
+            padding: 12px;
+            font-size: 16px;
+            font-weight: 600;
+            color: #1F2937;
+            border-bottom: 1px solid #E5E7EB;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin: 0;
+            background: white;
+        }
+
+        .section-title i {
+            font-size: 18px;
+            color: #059669;
+        }
+
+        .search-bar {
+            position: relative;
+            max-width: 600px;
+            margin: 10px auto;
+        }
+
+        .search-input {
+            width: 100%;
+            padding: 12px 20px;
+            padding-left: 40px;
+            border: 1px solid #E5E7EB;
+            border-radius: 12px;
+            font-size: 16px;
+            background: white;
+            transition: all 0.2s;
+        }
+
+        .search-input:focus {
+            outline: none;
+            border-color: #059669;
+            box-shadow: 0 0 0 3px rgba(5,150,105,0.1);
+        }
+
+        .search-icon {
+            position: absolute;
+            left: 12px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #9CA3AF;
+        }
+
+        .back-to-top {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            width: 40px;
+            height: 40px;
+            border-radius: 20px;
+            background: #1F2937;
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            opacity: 0;
+            transition: all 0.3s;
+            z-index: 50;
+        }
+
+        .back-to-top.show {
+            opacity: 1;
+        }
+
+        .container {
+            max-width: 1600px;
+            margin: 0 auto;
+            padding: 10px;
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                padding: 5px;
+            }
+            
+            .section-content {
+                gap: 15px;
+                padding: 0 5px 5px;
+            }
+
+            .prototypes-grid {
+                gap: 5px;
+                padding: 5px;
+            }
+
+            .nav-tabs {
+                padding: 6px 8px;
+                gap: 6px;
+            }
+
+            .section-title {
+                padding: 14px;
+                font-size: 15px;
+            }
+
+            .section-title i {
+                font-size: 16px;
+            }
+
+            .prototype-label {
+                font-size: 12px;
+            }
+        }
+    </style>
+</head>
+<body class="bg-gray-100">
+    <div class="container mx-auto py-8">
+        <h1 class="text-3xl font-bold text-center mb-4">农财通 App 原型预览</h1>
+        
+        <!-- 搜索栏 -->
+        <div class="search-bar">
+            <i class="fas fa-search search-icon"></i>
+            <input type="text" class="search-input" placeholder="搜索页面..." oninput="filterPrototypes(this.value)">
+        </div>
+
+        <!-- 导航标签 -->
+        <div class="nav-tabs">
+            <button class="nav-tab active" onclick="filterBySection('all')">全部</button>
+            <button class="nav-tab" onclick="filterBySection('guide')">引导页</button>
+            <button class="nav-tab" onclick="filterBySection('main')">主导航</button>
+            <button class="nav-tab" onclick="filterBySection('list')">专区列表</button>
+            <button class="nav-tab" onclick="filterBySection('function')">功能页面</button>
+        </div>
+
+        <div class="prototypes-grid">
+            <!-- 引导页 -->
+            <div class="section-title" data-section="guide">
+                <i class="fas fa-flag"></i>
+                引导页
+            </div>
+            <div class="section-content">
+                <div class="prototype-wrapper" data-section="guide">
+                    <div class="prototype-container">
+                        <div class="status-bar">
+                            <div class="dynamic-island"></div>
+                        </div>
+                        <iframe src="pages/guide.html" class="prototype-frame" loading="lazy"></iframe>
+                    </div>
+                    <div class="prototype-label">引导页</div>
+                </div>
+                <div class="prototype-wrapper coming-soon" data-section="guide">
+                    <div class="prototype-container">
+                        <div class="status-bar">
+                            <div class="dynamic-island"></div>
+                        </div>
+                        <div class="prototype-frame"></div>
+                    </div>
+                    <div class="prototype-label">隐私政策</div>
+                </div>
+                <div class="prototype-wrapper coming-soon" data-section="guide">
+                    <div class="prototype-container">
+                        <div class="status-bar">
+                            <div class="dynamic-island"></div>
+                        </div>
+                        <div class="prototype-frame"></div>
+                    </div>
+                    <div class="prototype-label">用户协议</div>
+                </div>
+            </div>
+
+            <!-- 主导航页面 -->
+            <div class="section-title" data-section="main">
+                <i class="fas fa-compass"></i>
+                主导航页面
+            </div>
+            <div class="section-content">
+                <div class="prototype-wrapper" data-section="main">
+                    <div class="prototype-container">
+                        <div class="status-bar">
+                            <div class="dynamic-island"></div>
+                        </div>
+                        <iframe src="pages/home.html" class="prototype-frame"></iframe>
+                    </div>
+                    <div class="prototype-label">首页</div>
+                </div>
+                <div class="prototype-wrapper" data-section="main">
+                    <div class="prototype-container">
+                        <div class="status-bar">
+                            <div class="dynamic-island"></div>
+                        </div>
+                        <iframe src="pages/category.html" class="prototype-frame"></iframe>
+                    </div>
+                    <div class="prototype-label">分类</div>
+                </div>
+                <div class="prototype-wrapper" data-section="main">
+                    <div class="prototype-container">
+                        <div class="status-bar">
+                            <div class="dynamic-island"></div>
+                        </div>
+                        <iframe src="pages/market.html" class="prototype-frame"></iframe>
+                    </div>
+                    <div class="prototype-label">行情</div>
+                </div>
+                <div class="prototype-wrapper" data-section="main">
+                    <div class="prototype-container">
+                        <div class="status-bar">
+                            <div class="dynamic-island"></div>
+                        </div>
+                        <iframe src="pages/publish.html" class="prototype-frame"></iframe>
+                    </div>
+                    <div class="prototype-label">发布</div>
+                </div>
+                <div class="prototype-wrapper" data-section="main">
+                    <div class="prototype-container">
+                        <div class="status-bar">
+                            <div class="dynamic-island"></div>
+                        </div>
+                        <iframe src="pages/message.html" class="prototype-frame"></iframe>
+                    </div>
+                    <div class="prototype-label">消息</div>
+                </div>
+                <div class="prototype-wrapper" data-section="main">
+                    <div class="prototype-container">
+                        <div class="status-bar">
+                            <div class="dynamic-island"></div>
+                        </div>
+                        <iframe src="pages/profile.html" class="prototype-frame"></iframe>
+                    </div>
+                    <div class="prototype-label">我的</div>
+                </div>
+            </div>
+
+            <!-- 专区列表页面 -->
+            <div class="section-title" data-section="list">
+                <i class="fas fa-list"></i>
+                专区列表页面
+            </div>
+            <div class="section-content">
+                <div class="prototype-wrapper" data-section="list">
+                    <div class="prototype-container">
+                        <div class="status-bar">
+                            <div class="dynamic-island"></div>
+                        </div>
+                        <iframe src="pages/fruit-list.html" class="prototype-frame"></iframe>
+                    </div>
+                    <div class="prototype-label">水果专区</div>
+                </div>
+                <div class="prototype-wrapper" data-section="list">
+                    <div class="prototype-container">
+                        <div class="status-bar">
+                            <div class="dynamic-island"></div>
+                        </div>
+                        <iframe src="pages/vegetable-list.html" class="prototype-frame"></iframe>
+                    </div>
+                    <div class="prototype-label">蔬菜专区</div>
+                </div>
+                <div class="prototype-wrapper" data-section="list">
+                    <div class="prototype-container">
+                        <div class="status-bar">
+                            <div class="dynamic-island"></div>
+                        </div>
+                        <iframe src="pages/agri-supply-list.html" class="prototype-frame"></iframe>
+                    </div>
+                    <div class="prototype-label">农资专区</div>
+                </div>
+                <div class="prototype-wrapper" data-section="list">
+                    <div class="prototype-container">
+                        <div class="status-bar">
+                            <div class="dynamic-island"></div>
+                        </div>
+                        <iframe src="pages/machinery-list.html" class="prototype-frame"></iframe>
+                    </div>
+                    <div class="prototype-label">农机专区</div>
+                </div>
+                <div class="prototype-wrapper" data-section="list">
+                    <div class="prototype-container">
+                        <div class="status-bar">
+                            <div class="dynamic-island"></div>
+                        </div>
+                        <iframe src="pages/storage-list.html" class="prototype-frame"></iframe>
+                    </div>
+                    <div class="prototype-label">仓储专区</div>
+                </div>
+                <div class="prototype-wrapper coming-soon" data-section="list">
+                    <div class="prototype-container">
+                        <div class="status-bar">
+                            <div class="dynamic-island"></div>
+                        </div>
+                        <div class="prototype-frame"></div>
+                    </div>
+                    <div class="prototype-label">种植专区</div>
+                </div>
+                <div class="prototype-wrapper coming-soon" data-section="list">
+                    <div class="prototype-container">
+                        <div class="status-bar">
+                            <div class="dynamic-island"></div>
+                        </div>
+                        <div class="prototype-frame"></div>
+                    </div>
+                    <div class="prototype-label">养殖专区</div>
+                </div>
+            </div>
+
+            <!-- 功能页面 -->
+            <div class="section-title" data-section="function">
+                <i class="fas fa-tools"></i>
+                功能页面
+            </div>
+            <div class="section-content">
+                <div class="prototype-wrapper" data-section="function">
+                    <div class="prototype-container">
+                        <div class="status-bar">
+                            <div class="dynamic-island"></div>
+                        </div>
+                        <iframe src="pages/detail.html" class="prototype-frame"></iframe>
+                    </div>
+                    <div class="prototype-label">商品详情</div>
+                </div>
+                <div class="prototype-wrapper" data-section="function">
+                    <div class="prototype-container">
+                        <div class="status-bar">
+                            <div class="dynamic-island"></div>
+                        </div>
+                        <iframe src="pages/chat.html" class="prototype-frame"></iframe>
+                    </div>
+                    <div class="prototype-label">聊天详情</div>
+                </div>
+                <div class="prototype-wrapper" data-section="function">
+                    <div class="prototype-container">
+                        <div class="status-bar">
+                            <div class="dynamic-island"></div>
+                        </div>
+                        <iframe src="pages/search.html" class="prototype-frame"></iframe>
+                    </div>
+                    <div class="prototype-label">搜索</div>
+                </div>
+                <div class="prototype-wrapper" data-section="function">
+                    <div class="prototype-container">
+                        <div class="status-bar">
+                            <div class="dynamic-island"></div>
+                        </div>
+                        <iframe src="pages/points.html" class="prototype-frame"></iframe>
+                    </div>
+                    <div class="prototype-label">积分兑换</div>
+                </div>
+                <div class="prototype-wrapper" data-section="function">
+                    <div class="prototype-container">
+                        <div class="status-bar">
+                            <div class="dynamic-island"></div>
+                        </div>
+                        <iframe src="pages/accounting.html" class="prototype-frame"></iframe>
+                    </div>
+                    <div class="prototype-label">记账</div>
+                </div>
+                <div class="prototype-wrapper" data-section="function">
+                    <div class="prototype-container">
+                        <div class="status-bar">
+                            <div class="dynamic-island"></div>
+                        </div>
+                        <iframe src="pages/policy.html" class="prototype-frame"></iframe>
+                    </div>
+                    <div class="prototype-label">政策申请</div>
+                </div>
+                <div class="prototype-wrapper" data-section="function">
+                    <div class="prototype-container">
+                        <div class="status-bar">
+                            <div class="dynamic-island"></div>
+                        </div>
+                        <iframe src="pages/push.html" class="prototype-frame"></iframe>
+                    </div>
+                    <div class="prototype-label">农资推送</div>
+                </div>
+                <div class="prototype-wrapper" data-section="function">
+                    <div class="prototype-container">
+                        <div class="status-bar">
+                            <div class="dynamic-island"></div>
+                        </div>
+                        <iframe src="pages/scan.html" class="prototype-frame"></iframe>
+                    </div>
+                    <div class="prototype-label">申农码扫描</div>
+                </div>
+                <div class="prototype-wrapper coming-soon" data-section="function">
+                    <div class="prototype-container">
+                        <div class="status-bar">
+                            <div class="dynamic-island"></div>
+                        </div>
+                        <div class="prototype-frame"></div>
+                    </div>
+                    <div class="prototype-label">农技服务</div>
+                </div>
+                <div class="prototype-wrapper coming-soon" data-section="function">
+                    <div class="prototype-container">
+                        <div class="status-bar">
+                            <div class="dynamic-island"></div>
+                        </div>
+                        <div class="prototype-frame"></div>
+                    </div>
+                    <div class="prototype-label">天气预报</div>
+                </div>
+                <div class="prototype-wrapper coming-soon" data-section="function">
+                    <div class="prototype-container">
+                        <div class="status-bar">
+                            <div class="dynamic-island"></div>
+                        </div>
+                        <div class="prototype-frame"></div>
+                    </div>
+                    <div class="prototype-label">病虫害识别</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 返回顶部按钮 -->
+    <div class="back-to-top" onclick="scrollToTop()" id="backToTop">
+        <i class="fas fa-arrow-up"></i>
+    </div>
+
+    <script>
+        // 筛选功能
+        function filterPrototypes(query) {
+            query = query.toLowerCase().trim();
+            const wrappers = document.querySelectorAll('.prototype-wrapper');
+            const titles = document.querySelectorAll('.section-title');
+            const sections = new Set();
+            
+            wrappers.forEach(wrapper => {
+                const label = wrapper.querySelector('.prototype-label').textContent.toLowerCase();
+                const isVisible = label.includes(query);
+                wrapper.style.display = isVisible ? 'block' : 'none';
+                if (isVisible) {
+                    sections.add(wrapper.dataset.section);
+                }
+            });
+
+            titles.forEach(title => {
+                title.style.display = sections.has(title.dataset.section) ? 'flex' : 'none';
+            });
+        }
+
+        // 分类筛选
+        function filterBySection(section) {
+            const tabs = document.querySelectorAll('.nav-tab');
+            const wrappers = document.querySelectorAll('.prototype-wrapper');
+            const titles = document.querySelectorAll('.section-title');
+            const contents = document.querySelectorAll('.section-content');
+
+            // 更新标签状态
+            tabs.forEach(tab => tab.classList.remove('active'));
+            event.target.classList.add('active');
+
+            if (section === 'all') {
+                wrappers.forEach(w => w.style.display = 'block');
+                titles.forEach(t => t.style.display = 'flex');
+                contents.forEach(c => c.style.display = 'grid');
+            } else {
+                wrappers.forEach(wrapper => {
+                    wrapper.style.display = wrapper.dataset.section === section ? 'block' : 'none';
+                });
+                titles.forEach(title => {
+                    const isVisible = title.dataset.section === section;
+                    title.style.display = isVisible ? 'flex' : 'none';
+                    if (isVisible) {
+                        const nextContent = title.nextElementSibling;
+                        if (nextContent && nextContent.classList.contains('section-content')) {
+                            nextContent.style.display = 'grid';
+                        }
+                    }
+                });
+            }
+        }
+
+        // 返回顶部
+        window.onscroll = function() {
+            const btn = document.getElementById('backToTop');
+            if (document.body.scrollTop > 200 || document.documentElement.scrollTop > 200) {
+                btn.classList.add('show');
+            } else {
+                btn.classList.remove('show');
+            }
+        };
+
+        function scrollToTop() {
+            window.scrollTo({
+                top: 0,
+                behavior: 'smooth'
+            });
+        }
+
+        // 延迟加载
+        document.addEventListener('DOMContentLoaded', function() {
+            const wrappers = document.querySelectorAll('.prototype-wrapper');
+            wrappers.forEach((wrapper, index) => {
+                wrapper.style.animationDelay = `${index * 0.1}s`;
+            });
+        });
+    </script>
+</body>
+</html> 
